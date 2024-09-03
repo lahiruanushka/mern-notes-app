@@ -1,0 +1,12 @@
+.noteCard{  
+background-color: cornsilk;
+}
+
+.cardBody{
+    overflow: hidden;
+    mask-image: linear-gradient();
+}
+
+.cardText{
+    white-space: pre-line;
+}
