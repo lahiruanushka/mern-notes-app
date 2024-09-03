@@ -6,8 +6,14 @@ import mongoose from "mongoose";
 export const getNotes: RequestHandler = async (req, res, next) => {
   try {
     const notes = await NoteModel.find().exec();
+
+    if (!notes || notes.length === 0) {
+      return res.status(404).json({ message: "No notes found." });
+    }
+
     res.status(200).json(notes);
   } catch (error) {
+    console.error("Error fetching notes:", error);
     next(error);
   }
 };
@@ -121,7 +127,7 @@ export const deleteNote: RequestHandler = async (req, res, next) => {
 
     await note.deleteOne();
 
-    res.sendStatus(204)
+    res.sendStatus(204);
   } catch (error) {
     next(error);
   }
