@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import styles from "../styles/Note.module.css";
 import styleUtils from "../styles/utils.module.css";
-import { Card, Button } from "react-bootstrap";
+import { Card, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Note as NoteModel } from "../models/note";
 import { formatDate } from "../utils/formatDate";
 import { MdDeleteOutline } from "react-icons/md";
-import ConfirmationModal from "./ConfirmationModal"; // Import the new modal
+import ConfirmationModal from "./ConfirmationModal";
 
 interface NoteProps {
   note: NoteModel;
@@ -65,18 +65,28 @@ const Note = ({ note, onNoteClicked, onDeleteNoteClicked, className }: NoteProps
         style={{ backgroundColor: cardColor }}
         onClick={() => onNoteClicked(note)}
       >
-        <Card.Body className={styles.cardBody}>
+        <Card.Body className={`${styles.cardBody} d-flex flex-column`}>
           <div className="d-flex justify-content-between align-items-center">
-            <Card.Title className={`${styleUtils.flexCenter} mb-2`}>{title}</Card.Title>
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={handleDeleteClick}
+            <Card.Title className={`${styleUtils.flexCenter} mb-2 text-truncate`} style={{ maxWidth: "80%" }}>
+              {title}
+            </Card.Title>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id="delete-tooltip">Delete Note</Tooltip>}
             >
-              <MdDeleteOutline />
-            </Button>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={handleDeleteClick}
+                className="p-1"
+              >
+                <MdDeleteOutline />
+              </Button>
+            </OverlayTrigger>
           </div>
-          <Card.Text className={styles.cardText}>{text}</Card.Text>
+          <Card.Text className={`${styles.cardText} text-truncate`} style={{ overflow: "hidden" }}>
+            {text}
+          </Card.Text>
         </Card.Body>
         <Card.Footer className="text-muted text-end">{createdUpdateText}</Card.Footer>
       </Card>

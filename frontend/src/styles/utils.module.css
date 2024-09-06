@@ -1,12 +1,29 @@
-.blockCenter{
+/* Centering Styles */
+.block-center {
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
 
-.flexCenter{
+.flex-center {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
 }
+
+/* Container Styles */
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Width Utility */
+.width-100 {
+    width: 100%;
+}
+
