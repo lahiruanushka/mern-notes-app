@@ -1,9 +1,13 @@
 import { InferSchemaType, model, Schema } from "mongoose";
 
-const notesSchema = new Schema({
-    title: { type: String, required: true},
-    text: { type: String},
-}, { timestamps: true});
+const notesSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, required: true },
+    title: { type: String, required: true },
+    text: { type: String },
+  },
+  { timestamps: true }
+);
 
 type Note = InferSchemaType<typeof notesSchema>;
 
