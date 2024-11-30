@@ -5,8 +5,8 @@ import { requiresAuth } from "../middleware/auth";
 const router = express.Router();
 
 router.get("/me", requiresAuth, UserController.getAuthenticatedUser);
-router.post("/signup", UserController.signUP);
-router.post("/login", UserController.login);
+router.post("/signup", UserController.signupLimiter, UserController.signUP);
+router.post("/login", UserController.loginLimiter, UserController.login);
 router.post("/logout", UserController.logout);
 
 export default router;

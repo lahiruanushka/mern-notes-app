@@ -1,7 +1,26 @@
+import rateLimit from "express-rate-limit";
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt";
+
+// rate limiter for signup
+export const signupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 signup attempts per windowMs
+  message: "Too many signup attempts, please try again later",
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// rate limiter for login
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login attempts per windowMs
+  message: "Too many login attempts, please try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 interface SignupBody {
   username?: string;
@@ -9,26 +28,13 @@ interface SignupBody {
   password?: string;
 }
 
-// Get authenticated user
-export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
-  const authenticatedUserId = req.session.userId;
-
-  try {
-    if (!authenticatedUserId) {
-      throw createHttpError(401, "User not authorized");
-    }
-
-    const user = await UserModel.findById(authenticatedUserId)
-      .select("email username")
-      .exec();
-    res.status(200).json(user);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// User signup
-export const signUP: RequestHandler<unknown, unknown, SignupBody, unknown> = async (req, res, next) => {
+// signup
+export const signUP: RequestHandler<
+  unknown,
+  unknown,
+  SignupBody,
+  unknown
+> = async (req, res, next) => {
   const { username, email, password: passwordRaw } = req.body;
 
   try {
@@ -38,7 +44,10 @@ export const signUP: RequestHandler<unknown, unknown, SignupBody, unknown> = asy
 
     const existingUsername = await UserModel.findOne({ username }).exec();
     if (existingUsername) {
-      throw createHttpError(409, "Username already taken. Please choose a different one");
+      throw createHttpError(
+        409,
+        "Username already taken. Please choose a different one"
+      );
     }
 
     const existingEmail = await UserModel.findOne({ email }).exec();
@@ -55,15 +64,19 @@ export const signUP: RequestHandler<unknown, unknown, SignupBody, unknown> = asy
     });
 
     req.session.userId = newUser._id;
-    console.log('User signed up:', req.session.userId); // Debug log
     res.status(201).json(newUser);
   } catch (error) {
     next(error);
   }
 };
 
-// User login
-export const login: RequestHandler<unknown, unknown, { username?: string; password?: string }, unknown> = async (req, res, next) => {
+//login
+export const login: RequestHandler<
+  unknown,
+  unknown,
+  { username?: string; password?: string },
+  unknown
+> = async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
@@ -84,6 +97,24 @@ export const login: RequestHandler<unknown, unknown, { username?: string; passwo
     }
 
     req.session.userId = user._id;
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get authenticated user
+export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
+  const authenticatedUserId = req.session.userId;
+
+  try {
+    if (!authenticatedUserId) {
+      throw createHttpError(401, "User not authorized");
+    }
+
+    const user = await UserModel.findById(authenticatedUserId)
+      .select("email username")
+      .exec();
     res.status(200).json(user);
   } catch (error) {
     next(error);
